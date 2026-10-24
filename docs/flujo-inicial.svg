@@ -1,0 +1,107 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="860" viewBox="0 0 1180 860">
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+      <path d="M 0 1.2 L 10 5 L 0 8.8 z" fill="#3f3a33"/>
+    </marker>
+    <style>
+      .title { font: 700 28px "Segoe UI", sans-serif; fill: #1c1915; }
+      .sub { font: 15px "Segoe UI", sans-serif; fill: #5e584f; }
+      .lane { font: 700 16px "Segoe UI", sans-serif; }
+      .lane-note { font: 13px "Segoe UI", sans-serif; fill: #5e584f; }
+      .box { font: 14px "Segoe UI", sans-serif; fill: #1c1915; }
+      .small { font: 13px "Segoe UI", sans-serif; fill: #1c1915; }
+      .yes { font: 700 13px "Segoe UI", sans-serif; fill: #1f6f5b; }
+      .no { font: 700 13px "Segoe UI", sans-serif; fill: #9a3b32; }
+    </style>
+  </defs>
+
+  <rect width="1180" height="860" fill="#f6f3ec"/>
+  <text class="title" x="36" y="48">UsTour — flujo inicial de prueba</text>
+  <text class="sub" x="36" y="76">El turista mira la página. El admin la carga. El chofer no tiene usuario ni contraseña.</text>
+
+  <rect x="24" y="104" width="1132" height="330" rx="18" fill="#e5f2ec"/>
+  <text class="lane" x="44" y="136" fill="#1f6f5b">Turista</text>
+  <text class="lane-note" x="130" y="136">Entra por el QR. No se registra.</text>
+
+  <rect x="44" y="176" width="150" height="52" rx="26" fill="#fff" stroke="#1c1915" stroke-width="1.5"/>
+  <text class="box" x="119" y="207" text-anchor="middle">Escanea el QR</text>
+
+  <line x1="194" y1="202" x2="228" y2="202" stroke="#3f3a33" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <rect x="232" y="172" width="196" height="60" rx="12" fill="#fff" stroke="#1f6f5b" stroke-width="1.6"/>
+  <text class="box" x="330" y="197" text-anchor="middle">Abre la página</text>
+  <text class="small" x="330" y="216" text-anchor="middle">/juan-perez</text>
+
+  <line x1="428" y1="202" x2="468" y2="202" stroke="#3f3a33" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <polygon points="570,158 668,202 570,246 472,202" fill="#fff" stroke="#c9842a" stroke-width="1.6"/>
+  <text class="small" x="570" y="198" text-anchor="middle">¿El chofer</text>
+  <text class="small" x="570" y="216" text-anchor="middle">está activo?</text>
+
+  <line x1="668" y1="202" x2="708" y2="202" stroke="#3f3a33" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <text class="yes" x="678" y="192">Sí</text>
+
+  <rect x="712" y="168" width="210" height="68" rx="12" fill="#fff" stroke="#1f6f5b" stroke-width="1.6"/>
+  <text class="box" x="817" y="193" text-anchor="middle">Ve lugares, horarios</text>
+  <text class="small" x="817" y="214" text-anchor="middle">y contacto</text>
+
+  <line x1="922" y1="202" x2="958" y2="202" stroke="#3f3a33" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <rect x="962" y="176" width="160" height="52" rx="26" fill="#1f6f5b"/>
+  <text class="box" x="1042" y="207" text-anchor="middle" fill="#fff">Fin</text>
+
+  <line x1="570" y1="246" x2="570" y2="292" stroke="#3f3a33" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <text class="no" x="582" y="274">No</text>
+
+  <rect x="470" y="296" width="200" height="60" rx="12" fill="#fff" stroke="#9a3b32" stroke-width="1.6"/>
+  <text class="box" x="570" y="321" text-anchor="middle">Muestra un aviso</text>
+  <text class="small" x="570" y="340" text-anchor="middle">Página no disponible</text>
+
+  <line x1="670" y1="326" x2="748" y2="326" stroke="#3f3a33" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <rect x="752" y="300" width="120" height="52" rx="26" fill="#9a3b32"/>
+  <text class="box" x="812" y="331" text-anchor="middle" fill="#fff">Fin</text>
+
+  <text class="lane-note" x="44" y="400">Si está activo, también puede abrir WhatsApp desde la misma página.</text>
+
+  <rect x="24" y="454" width="1132" height="300" rx="18" fill="#e6eef8"/>
+  <text class="lane" x="44" y="486" fill="#1e4d7b">Admin</text>
+  <text class="lane-note" x="118" y="486">Una sola cuenta. Carga y quita choferes.</text>
+
+  <rect x="44" y="526" width="150" height="52" rx="26" fill="#fff" stroke="#1c1915" stroke-width="1.5"/>
+  <text class="box" x="119" y="557" text-anchor="middle">Abre /login</text>
+
+  <line x1="194" y1="552" x2="228" y2="552" stroke="#3f3a33" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <polygon points="330,508 428,552 330,596 232,552" fill="#fff" stroke="#c9842a" stroke-width="1.6"/>
+  <text class="small" x="330" y="548" text-anchor="middle">¿Clave</text>
+  <text class="small" x="330" y="566" text-anchor="middle">correcta?</text>
+
+  <line x1="428" y1="552" x2="468" y2="552" stroke="#3f3a33" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <text class="yes" x="438" y="542">Sí</text>
+
+  <rect x="472" y="522" width="170" height="60" rx="12" fill="#fff" stroke="#1e4d7b" stroke-width="1.6"/>
+  <text class="box" x="557" y="557" text-anchor="middle">Entra al panel</text>
+
+  <line x1="642" y1="552" x2="678" y2="552" stroke="#3f3a33" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <rect x="682" y="514" width="230" height="76" rx="12" fill="#fff" stroke="#1e4d7b" stroke-width="1.6"/>
+  <text class="box" x="797" y="544" text-anchor="middle">Crea, edita o quita</text>
+  <text class="small" x="797" y="564" text-anchor="middle">la ficha del chofer</text>
+
+  <line x1="912" y1="552" x2="948" y2="552" stroke="#3f3a33" stroke-width="1.6" marker-end="url(#arrow)"/>
+
+  <rect x="952" y="526" width="160" height="52" rx="26" fill="#1e4d7b"/>
+  <text class="box" x="1032" y="557" text-anchor="middle" fill="#fff">Fin</text>
+
+  <line x1="330" y1="596" x2="330" y2="642" stroke="#3f3a33" stroke-width="1.6" marker-end="url(#arrow)"/>
+  <text class="no" x="342" y="624">No</text>
+
+  <rect x="230" y="646" width="200" height="52" rx="12" fill="#fff" stroke="#9a3b32" stroke-width="1.6"/>
+  <text class="box" x="330" y="677" text-anchor="middle">Sigue en el login</text>
+
+  <text class="lane-note" x="470" y="678">Lo que guarda el admin es lo que el turista ve en el QR.</text>
+
+  <text class="sub" x="36" y="804">Chofer: no entra al sistema. Pasa lugares, horarios y contacto al admin, y entrega la tarjeta o el QR.</text>
+  <text class="sub" x="36" y="830">Borrador para revisar el recorrido. Todavía no describe pantallas terminadas.</text>
+</svg>
