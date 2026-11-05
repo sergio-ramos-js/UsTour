@@ -11,12 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('places', function (Blueprint $table) {
+        Schema::create('lugares', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('driver_id')->constrained()->cascadeOnDelete();
-            $table->string('name');
-            $table->text('description')->nullable();
-            $table->unsignedInteger('position')->default(0);
+            $table->foreignId('chofer_id')->constrained('choferes')->cascadeOnDelete();
+            $table->string('nombre');
+            $table->text('descripcion')->nullable();
+            $table->unsignedInteger('orden')->default(0);
             $table->timestamps();
         });
     }
@@ -26,6 +26,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('places');
+        Schema::dropIfExists('lugares');
     }
 };

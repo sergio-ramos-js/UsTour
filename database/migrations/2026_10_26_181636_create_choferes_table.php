@@ -11,16 +11,16 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('drivers', function (Blueprint $table) {
+        Schema::create('choferes', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('nombre');
             $table->string('slug')->unique();
-            $table->text('description')->nullable();
-            $table->string('photo')->nullable();
-            $table->string('phone')->nullable();
-            $table->string('secondphone')->nullable();
-            $table->string('email')->nullable();
-            $table->boolean('active')->default(true);
+            $table->text('descripcion')->nullable();
+            $table->string('foto')->nullable();
+            $table->string('telefono')->nullable();
+            $table->string('telefono_secundario')->nullable();
+            $table->string('correo')->nullable();
+            $table->boolean('activo')->default(true);
             $table->timestamps();
         });
     }
@@ -30,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('drivers');
+        Schema::dropIfExists('choferes');
     }
 };
