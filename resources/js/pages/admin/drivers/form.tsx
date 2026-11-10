@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { index } from '@/routes/drivers';
+import HorarioController from '@/actions/App/Http/Controllers/Admin/HorarioController';
 
 type ChoferFormData = {
     nombre: string;
@@ -15,7 +16,128 @@ type ChoferFormData = {
     correo: string | null;
     activo: boolean;
     foto_url: string | null;
+    horarios: HorarioFormData[];
 };
+type HorarioFormData = {
+    id: number;
+    dia: string;
+    empieza: string;
+    termina: string | null;
+    nota: string | null;
+};
+
+function HorariosDelChofer({ slug, horarios }: { slug: string; horarios: HorarioFormData[] }) {
+    return (
+        <section className="space-y-4 border-t pt-6">
+            <div>
+                <h2 className="text-lg font-semibold">Horarios</h2>
+                <p className="text-sm text-muted-foreground">
+                    El día puede ser un texto, por ejemplo “Lunes a sábado”. La hora de fin y la nota son opcionales.
+                </p>
+            </div>
+
+            {horarios.map((horario) => (
+                <div key={horario.id} className="space-y-3 rounded-md border p-4">
+                    <Form
+                        {...HorarioController.update.form([slug, horario.id])}
+                        errorBag={`horario-${horario.id}`}
+                        className="space-y-3"
+                    >
+                        {({ processing, errors }) => (
+                            <>
+                                <div className="grid gap-2">
+                                    <Label htmlFor={`dia-${horario.id}`}>Día</Label>
+                                    <Input id={`dia-${horario.id}`} name="dia" defaultValue={horario.dia} required />
+                                    <InputError message={errors.dia} />
+                                </div>
+                                <div className="grid gap-4 sm:grid-cols-2">
+                                    <div className="grid gap-2">
+                                        <Label htmlFor={`empieza-${horario.id}`}>Empieza</Label>
+                                        <Input
+                                            id={`empieza-${horario.id}`}
+                                            name="empieza"
+                                            type="time"
+                                            defaultValue={horario.empieza}
+                                            required
+                                        />
+                                        <InputError message={errors.empieza} />
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <Label htmlFor={`termina-${horario.id}`}>Termina</Label>
+                                        <Input
+                                            id={`termina-${horario.id}`}
+                                            name="termina"
+                                            type="time"
+                                            defaultValue={horario.termina ?? ''}
+                                        />
+                                        <InputError message={errors.termina} />
+                                    </div>
+                                </div>
+                                <div className="grid gap-2">
+                                    <Label htmlFor={`nota-${horario.id}`}>Nota</Label>
+                                    <Input id={`nota-${horario.id}`} name="nota" defaultValue={horario.nota ?? ''} />
+                                    <InputError message={errors.nota} />
+                                </div>
+                                <Button disabled={processing}>Guardar horario</Button>
+                            </>
+                        )}
+                    </Form>
+                    <Form {...HorarioController.destroy.form([slug, horario.id])}>
+                        {({ processing }) => (
+                            <Button
+                                type="submit"
+                                variant="destructive"
+                                disabled={processing}
+                                onClick={(event) => {
+                                    if (!window.confirm('¿Eliminar este horario?')) {
+                                        event.preventDefault();
+                                    }
+                                }}
+                            >
+                                Eliminar
+                            </Button>
+                        )}
+                    </Form>
+                </div>
+            ))}
+
+            <Form
+                {...HorarioController.store.form(slug)}
+                errorBag="horario-nuevo"
+                resetOnSuccess
+                className="space-y-3"
+            >
+                {({ processing, errors }) => (
+                    <>
+                        <div className="grid gap-2">
+                            <Label htmlFor="dia-nuevo">Día</Label>
+                            <Input id="dia-nuevo" name="dia" placeholder="Lunes a sábado" required />
+                            <InputError message={errors.dia} />
+                        </div>
+                        <div className="grid gap-4 sm:grid-cols-2">
+                            <div className="grid gap-2">
+                                <Label htmlFor="empieza-nuevo">Empieza</Label>
+                                <Input id="empieza-nuevo" name="empieza" type="time" required />
+                                <InputError message={errors.empieza} />
+                            </div>
+                            <div className="grid gap-2">
+                                <Label htmlFor="termina-nuevo">Termina</Label>
+                                <Input id="termina-nuevo" name="termina" type="time" />
+                                <InputError message={errors.termina} />
+                            </div>
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="nota-nuevo">Nota</Label>
+                            <Input id="nota-nuevo" name="nota" />
+                            <InputError message={errors.nota} />
+                        </div>
+                        <Button disabled={processing}>Agregar horario</Button>
+                    </>
+                )}
+            </Form>
+        </section>
+    );
+}
 
 export default function ChoferForm({ chofer }: { chofer: ChoferFormData | null }) {
     const editing = chofer !== null;
@@ -139,6 +261,7 @@ export default function ChoferForm({ chofer }: { chofer: ChoferFormData | null }
                         )}
                     </Form>
                 )}
+                {editing && <HorariosDelChofer slug={chofer.slug} horarios={chofer.horarios} />}
             </div>
         </>
     );

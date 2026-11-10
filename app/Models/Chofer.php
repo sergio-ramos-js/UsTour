@@ -7,7 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 
-#[Fillable(['nombre', 'slug', 'descripcion', 'foto', 'telefono', 'telefono_secundario', 'correo', 'activo'])]
+#[Fillable(['nombre',
+     'slug',
+     'descripcion',
+     'foto',
+     'telefono',
+     'telefono_secundario',
+     'correo',
+     'activo'])]
+     
 class Chofer extends Model
 {
     protected $table = 'choferes';

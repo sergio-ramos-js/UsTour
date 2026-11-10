@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 use Inertia\Response;
+use Illuminate\Support\Carbon;
 
 class ChoferController extends Controller
 {
@@ -38,6 +39,7 @@ class ChoferController extends Controller
 
     public function edit(Chofer $chofer): Response
     {
+        $chofer->load('horarios');
         return Inertia::render('admin/drivers/form', [
             'chofer' => [
                 'nombre' => $chofer->nombre,
@@ -48,6 +50,13 @@ class ChoferController extends Controller
                 'correo' => $chofer->correo,
                 'activo' => $chofer->activo,
                 'foto_url' => $chofer->foto ? Storage::disk('public')->url($chofer->foto) : null,
+                'horarios' => $chofer->horarios->map(fn($horario) => [
+                    'id' => $horario->id,
+                    'dia' => $horario->dia,
+                    'empieza' => $this->hora($horario->empieza),
+                    'termina' => $this->hora($horario->termina),
+                    'nota' => $horario->nota,
+                ])->values()->all(),
             ],
         ]);
     }
@@ -97,7 +106,7 @@ class ChoferController extends Controller
         $suffix = 2;
 
         while ($this->slugTaken($slug, $ignore)) {
-            $slug = $base.'-'.$suffix;
+            $slug = $base . '-' . $suffix;
             $suffix++;
         }
 
@@ -111,8 +120,13 @@ class ChoferController extends Controller
         }
 
         return Chofer::query()
-            ->when($ignore, fn ($query) => $query->whereKeyNot($ignore->id))
+            ->when($ignore, fn($query) => $query->whereKeyNot($ignore->id))
             ->where('slug', $slug)
             ->exists();
+    }
+
+    private function hora(?string $valor): ?string
+    {
+        return $valor === null ? null : Carbon::parse($valor)->format('H:i');
     }
 }

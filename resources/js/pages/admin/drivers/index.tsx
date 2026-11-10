@@ -33,10 +33,10 @@ export default function DriversIndex({ choferes }: { choferes: ChoferRow[] }) {
                     <ul className="divide-y rounded-xl border">
                         {choferes.map((chofer) => (
                             <li key={chofer.id} className="flex items-center justify-between gap-4 p-4">
-                                <div>
-                                    <p className="font-medium">{chofer.nombre}</p>
+                                <Link href={edit(chofer.slug)} className="min-w-0 flex-1">
+                                    <p className="font-medium hover:underline">{chofer.nombre}</p>
                                     <p className="text-sm text-muted-foreground">/{chofer.slug}</p>
-                                </div>
+                                </Link>
                                 <div className="flex items-center gap-3">
                                     <span className="text-sm">{chofer.activo ? 'Activo' : 'Inactivo'}</span>
                                     <Button variant="outline" asChild>
