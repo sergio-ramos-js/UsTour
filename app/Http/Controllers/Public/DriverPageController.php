@@ -17,7 +17,7 @@ class DriverPageController extends Controller
     public function show(string $slug): Response
     {
         $chofer = Chofer::query()
-            ->with('horarios')
+            ->with(['horarios', 'lugares.fotos', 'vehiculo'])
             ->where('slug', $slug)
             ->where('activo', true)
             ->first();
@@ -36,11 +36,29 @@ class DriverPageController extends Controller
                 'foto_url' => $chofer->foto
                     ? Storage::disk('public')->url($chofer->foto)
                     : null,
+                'fondo' => $chofer->fondo,
                 'horarios' => $chofer->horarios->map(fn ($horario) => [
                     'dia' => $horario->dia,
                     'empieza' => $this->hora($horario->empieza),
                     'termina' => $this->hora($horario->termina),
-                    'nota' => $horario->nota,
+                    // 'nota' => $horario->nota,
+                ])->values()->all(),
+                'vehiculo' => $chofer->vehiculo ? [
+                    'marca' => $chofer->vehiculo->marca,
+                    'modelo' => $chofer->vehiculo->modelo,
+                    'anio' => $chofer->vehiculo->anio,
+                    'color' => $chofer->vehiculo->color,
+                    'capacidad_pasajeros' => $chofer->vehiculo->capacidad_pasajeros,
+                    'capacidad_baul' => $chofer->vehiculo->capacidad_baul,
+                    'portaequipaje' => $chofer->vehiculo->portaequipaje,
+                ] : null,
+                'lugares' => $chofer->lugares->map(fn ($lugar) => [
+                    'nombre' => $lugar->nombre,
+                    'descripcion' => $lugar->descripcion,
+                    'fotos' => $lugar->fotos
+                        ->map(fn ($foto) => Storage::disk('public')->url($foto->archivo))
+                        ->values()
+                        ->all(),
                 ])->values()->all(),
             ] : null,
         ]);

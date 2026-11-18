@@ -1,5 +1,5 @@
 import { Link } from '@inertiajs/react';
-import { BookOpen, FolderGit2, LayoutGrid, Users } from 'lucide-react';
+import { BookOpen, Car, FolderGit2, LayoutGrid, MapPin, Users } from 'lucide-react';
 import AppLogo from '@/components/app-logo';
 import { NavFooter } from '@/components/nav-footer';
 import { NavMain } from '@/components/nav-main';
@@ -15,6 +15,8 @@ import {
 } from '@/components/ui/sidebar';
 import { dashboard } from '@/routes';
 import { index as drivers } from '@/routes/drivers';
+import { index as lugares } from '@/routes/lugares';
+import { index as vehiculos } from '@/routes/vehiculos';
 import type { NavItem } from '@/types';
 
 const mainNavItems: NavItem[] = [
@@ -27,6 +29,16 @@ const mainNavItems: NavItem[] = [
         title: 'Choferes',
         href: drivers(),
         icon: Users,
+    },
+    {
+        title: 'Lugares',
+        href: lugares(),
+        icon: MapPin,
+    },
+    {
+        title: 'Vehículos',
+        href: vehiculos(),
+        icon: Car,
     },
 ];
 

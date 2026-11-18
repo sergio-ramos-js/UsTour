@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('dia');
             $table->time('empieza');
             $table->time('termina')->nullable();
-            $table->string('nota')->nullable();
+            // $table->string('nota')->nullable();
             $table->timestamps();
         });
     }

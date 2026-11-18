@@ -1,3 +1,4 @@
+import { router } from '@inertiajs/react';
 import { useSyncExternalStore } from 'react';
 
 export type ResolvedAppearance = 'light' | 'dark';
@@ -9,8 +10,13 @@ export type UseAppearanceReturn = {
     readonly updateAppearance: (mode: Appearance) => void;
 };
 
-const listeners = new Set<() => void>();
-let currentAppearance: Appearance = 'system';
+const clavePanel = 'appearance';
+const clavePublica = 'appearance_public';
+
+const oyentesPanel = new Set<() => void>();
+const oyentesPublicos = new Set<() => void>();
+let modoPanel: Appearance = 'system';
+let modoPublico: Appearance = 'system';
 
 const prefersDark = (): boolean => {
     if (typeof window === 'undefined') {
@@ -29,12 +35,12 @@ const setCookie = (name: string, value: string, days = 365): void => {
     document.cookie = `${name}=${value};path=/;max-age=${maxAge};SameSite=Lax`;
 };
 
-const getStoredAppearance = (): Appearance => {
+const leer = (clave: string): Appearance => {
     if (typeof window === 'undefined') {
         return 'system';
     }
 
-    return (localStorage.getItem('appearance') as Appearance) || 'system';
+    return (localStorage.getItem(clave) as Appearance) || 'system';
 };
 
 const isDarkMode = (appearance: Appearance): boolean => {
@@ -52,13 +58,30 @@ const applyTheme = (appearance: Appearance): void => {
     document.documentElement.style.colorScheme = isDark ? 'dark' : 'light';
 };
 
-const subscribe = (callback: () => void) => {
-    listeners.add(callback);
-
-    return () => listeners.delete(callback);
+const paginaPublica = (): boolean => {
+    return document.documentElement.dataset.appearanceScope === 'public';
 };
 
-const notify = (): void => listeners.forEach((listener) => listener());
+const aplicarActivo = (): void => {
+    applyTheme(paginaPublica() ? modoPublico : modoPanel);
+};
+
+const asegurar = (clave: string): void => {
+    if (localStorage.getItem(clave)) {
+        return;
+    }
+
+    localStorage.setItem(clave, 'system');
+    setCookie(clave, 'system');
+};
+
+const subscribe = (oyentes: Set<() => void>) => (callback: () => void) => {
+    oyentes.add(callback);
+
+    return () => oyentes.delete(callback);
+};
+
+const notify = (oyentes: Set<() => void>): void => oyentes.forEach((listener) => listener());
 
 const mediaQuery = (): MediaQueryList | null => {
     if (typeof window === 'undefined') {
@@ -68,48 +91,74 @@ const mediaQuery = (): MediaQueryList | null => {
     return window.matchMedia('(prefers-color-scheme: dark)');
 };
 
-const handleSystemThemeChange = (): void => applyTheme(currentAppearance);
-
 export function initializeTheme(): void {
     if (typeof window === 'undefined') {
         return;
     }
 
-    if (!localStorage.getItem('appearance')) {
-        localStorage.setItem('appearance', 'system');
-        setCookie('appearance', 'system');
-    }
+    asegurar(clavePanel);
+    asegurar(clavePublica);
+    modoPanel = leer(clavePanel);
+    modoPublico = leer(clavePublica);
+    aplicarActivo();
 
-    currentAppearance = getStoredAppearance();
-    applyTheme(currentAppearance);
+    mediaQuery()?.addEventListener('change', aplicarActivo);
 
-    // Set up system theme change listener
-    mediaQuery()?.addEventListener('change', handleSystemThemeChange);
+    router.on('navigate', (event) => {
+        const publica = event.detail.page.component.startsWith('public/');
+        document.documentElement.dataset.appearanceScope = publica ? 'public' : 'admin';
+        aplicarActivo();
+    });
 }
 
-export function useAppearance(): UseAppearanceReturn {
-    const appearance: Appearance = useSyncExternalStore(
-        subscribe,
-        () => currentAppearance,
-        () => 'system',
-    );
+function useStoredAppearance(
+    actual: () => Appearance,
+    oyentes: Set<() => void>,
+    guardar: (mode: Appearance) => void,
+): UseAppearanceReturn {
+    const appearance: Appearance = useSyncExternalStore(subscribe(oyentes), actual, () => 'system');
 
-    const resolvedAppearance: ResolvedAppearance = isDarkMode(appearance)
-        ? 'dark'
-        : 'light';
+    const resolvedAppearance: ResolvedAppearance = isDarkMode(appearance) ? 'dark' : 'light';
 
     const updateAppearance = (mode: Appearance): void => {
-        currentAppearance = mode;
-
-        // Store in localStorage for client-side persistence...
-        localStorage.setItem('appearance', mode);
-
-        // Store in cookie for SSR...
-        setCookie('appearance', mode);
-
-        applyTheme(mode);
-        notify();
+        guardar(mode);
     };
 
     return { appearance, resolvedAppearance, updateAppearance } as const;
+}
+
+export function useAppearance(): UseAppearanceReturn {
+    return useStoredAppearance(
+        () => modoPanel,
+        oyentesPanel,
+        (mode) => {
+            modoPanel = mode;
+            localStorage.setItem(clavePanel, mode);
+            setCookie(clavePanel, mode);
+
+            if (!paginaPublica()) {
+                applyTheme(mode);
+            }
+
+            notify(oyentesPanel);
+        },
+    );
+}
+
+export function usePublicAppearance(): UseAppearanceReturn {
+    return useStoredAppearance(
+        () => modoPublico,
+        oyentesPublicos,
+        (mode) => {
+            modoPublico = mode;
+            localStorage.setItem(clavePublica, mode);
+            setCookie(clavePublica, mode);
+
+            if (paginaPublica()) {
+                applyTheme(mode);
+            }
+
+            notify(oyentesPublicos);
+        },
+    );
 }

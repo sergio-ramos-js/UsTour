@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\Admin\ChoferController;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\HorarioController;
+use App\Http\Controllers\Admin\LugarController;
+use App\Http\Controllers\Admin\VehiculoController;
+use Illuminate\Support\Facades\Route;
 
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -21,4 +23,16 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('drivers/{chofer}/horarios/{horario}', [HorarioController::class, 'destroy'])
         ->name('drivers.horarios.destroy')
         ->scopeBindings();
+
+    Route::resource('lugares', LugarController::class)
+        ->except(['show'])
+        ->parameters(['lugares' => 'lugar']);
+
+    Route::delete('lugares/{lugar}/fotos/{foto}', [LugarController::class, 'destroyFoto'])
+        ->name('lugares.fotos.destroy')
+        ->scopeBindings();
+
+    Route::resource('vehiculos', VehiculoController::class)
+        ->except(['show'])
+        ->parameters(['vehiculos' => 'vehiculo']);
 });

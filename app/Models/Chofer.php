@@ -4,8 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 
 #[Fillable(['nombre',
      'slug',
@@ -14,7 +15,9 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
      'telefono',
      'telefono_secundario',
      'correo',
-     'activo'])]
+     'activo',
+     'fondo',
+     'vehiculo_id'])]
      
 class Chofer extends Model
 {
@@ -35,9 +38,13 @@ class Chofer extends Model
         ];
     }
 
-    public function lugares(): HasMany
+    public function lugares(): BelongsToMany
     {
-        return $this->hasMany(Lugar::class)->orderBy('orden');
+        return $this->belongsToMany(Lugar::class, 'chofer_lugar')
+            ->withPivot('orden')
+            ->withTimestamps()
+            ->orderByPivot('orden')
+            ->orderBy('nombre');
     }
 
     public function horarios(): HasMany
@@ -45,8 +52,8 @@ class Chofer extends Model
         return $this->hasMany(Horario::class)->orderBy('empieza');
     }
 
-    public function vehiculo(): HasOne
+    public function vehiculo(): BelongsTo
     {
-        return $this->hasOne(Vehiculo::class);
+        return $this->belongsTo(Vehiculo::class);
     }
 }

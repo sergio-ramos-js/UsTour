@@ -4,9 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['chofer_id', 'marca', 'modelo', 'color', 'portaequipaje', 'capacidad_pasajeros', 'capacidad_baul'])]
+#[Fillable(['marca', 'modelo', 'anio', 'color', 'portaequipaje', 'capacidad_pasajeros', 'capacidad_baul'])]
 class Vehiculo extends Model
 {
     protected $table = 'vehiculos';
@@ -17,13 +17,14 @@ class Vehiculo extends Model
     protected function casts(): array
     {
         return [
+            'anio' => 'integer',
             'portaequipaje' => 'boolean',
             'capacidad_pasajeros' => 'integer',
         ];
     }
 
-    public function chofer(): BelongsTo
+    public function choferes(): HasMany
     {
-        return $this->belongsTo(Chofer::class);
+        return $this->hasMany(Chofer::class);
     }
 }

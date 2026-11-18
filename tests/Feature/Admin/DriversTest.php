@@ -28,7 +28,11 @@ test('an admin can create a driver and the slug comes from the name', function (
 
     $chofer = Chofer::query()->first();
 
-    $response->assertRedirect(route('drivers.edit', $chofer));
+    $response->assertRedirect(route('drivers.index'))
+        ->assertInertiaFlash('toast', [
+            'type' => 'success',
+            'message' => 'Chofer guardado correctamente.',
+        ]);
 
     expect($chofer->slug)->toBe('marcos-benitez')
         ->and($chofer->activo)->toBeTrue();
@@ -46,7 +50,11 @@ test('an admin can deactivate and delete a driver', function () {
     $this->put(route('drivers.update', $chofer), [
         'nombre' => 'Marcos Benítez',
         'slug' => 'marcos-benitez',
-    ])->assertRedirect(route('drivers.edit', $chofer));
+    ])->assertRedirect(route('drivers.index'))
+        ->assertInertiaFlash('toast', [
+            'type' => 'success',
+            'message' => 'Cambios guardados correctamente.',
+        ]);
 
     expect($chofer->refresh()->activo)->toBeFalse();
 

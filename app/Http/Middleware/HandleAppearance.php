@@ -16,7 +16,10 @@ class HandleAppearance
      */
     public function handle(Request $request, Closure $next): Response
     {
-        View::share('appearance', $request->cookie('appearance') ?? 'system');
+        $publica = $request->routeIs('drivers.show');
+
+        View::share('appearanceScope', $publica ? 'public' : 'admin');
+        View::share('appearance', $request->cookie($publica ? 'appearance_public' : 'appearance') ?? 'system');
 
         return $next($request);
     }

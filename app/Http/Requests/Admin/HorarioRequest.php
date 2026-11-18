@@ -13,12 +13,12 @@ class HorarioRequest extends FormRequest
 
     protected function prepareForValidation(): void
     {
-        $nota = trim((string) $this->input('nota', ''));
+        // $nota = trim((string) $this->input('nota', ''));
 
         $this->merge([
             'dia' => trim((string) $this->input('dia', '')),
             'termina' => $this->filled('termina') ? $this->input('termina') : null,
-            'nota' => $nota === '' ? null : $nota,
+            // 'nota' => $nota === '' ? null : $nota,
         ]);
     }
 
@@ -31,7 +31,7 @@ class HorarioRequest extends FormRequest
             'dia' => ['required', 'string', 'max:255'],
             'empieza' => ['required', 'date_format:H:i'],
             'termina' => ['nullable', 'date_format:H:i', 'after:empieza'],
-            'nota' => ['nullable', 'string', 'max:255'],
+            // 'nota' => ['nullable', 'string', 'max:255'],
         ];
     }
 }

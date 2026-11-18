@@ -4,25 +4,23 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['chofer_id', 'nombre', 'descripcion', 'orden'])]
+#[Fillable(['nombre', 'descripcion', 'ciudad'])]
 class Lugar extends Model
 {
     protected $table = 'lugares';
 
-    /**
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    public function fotos(): HasMany
     {
-        return [
-            'orden' => 'integer',
-        ];
+        return $this->hasMany(LugarFoto::class)->orderBy('orden');
     }
 
-    public function chofer(): BelongsTo
+    public function choferes(): BelongsToMany
     {
-        return $this->belongsTo(Chofer::class);
+        return $this->belongsToMany(Chofer::class, 'chofer_lugar')
+            ->withPivot('orden')
+            ->withTimestamps();
     }
 }

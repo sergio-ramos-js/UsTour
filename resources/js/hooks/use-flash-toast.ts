@@ -13,6 +13,19 @@ export function useFlashToast(): void {
                 return;
             }
 
+            if (data.type === 'success') {
+                toast.success(data.message, {
+                    position: 'top-right',
+                    style: {
+                        background: '#15803d',
+                        color: '#ffffff',
+                        border: '1px solid #166534',
+                    },
+                });
+
+                return;
+            }
+
             toast[data.type](data.message);
         });
     }, []);

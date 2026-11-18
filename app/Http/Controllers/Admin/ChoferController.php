@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Admin\ChoferRequest;
 use App\Models\Chofer;
+use App\Models\Lugar;
+use App\Models\Vehiculo;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
@@ -27,6 +29,8 @@ class ChoferController extends Controller
     {
         return Inertia::render('admin/drivers/form', [
             'chofer' => null,
+            'lugares' => $this->catalogo(),
+            'vehiculos' => $this->vehiculos(),
         ]);
     }
 
@@ -34,12 +38,24 @@ class ChoferController extends Controller
     {
         $chofer = Chofer::query()->create($this->attributes($request));
 
-        return redirect()->route('drivers.edit', $chofer);
+        foreach ($request->validated('horarios') ?? [] as $horario) {
+            $chofer->horarios()->create($horario);
+        }
+
+        $this->syncLugares($chofer, $request);
+
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => 'Chofer guardado correctamente.',
+        ]);
+
+        return redirect()->route('drivers.index');
     }
 
     public function edit(Chofer $chofer): Response
     {
-        $chofer->load('horarios');
+        $chofer->load('horarios', 'lugares');
+
         return Inertia::render('admin/drivers/form', [
             'chofer' => [
                 'nombre' => $chofer->nombre,
@@ -49,23 +65,33 @@ class ChoferController extends Controller
                 'telefono_secundario' => $chofer->telefono_secundario,
                 'correo' => $chofer->correo,
                 'activo' => $chofer->activo,
+                'fondo' => $chofer->fondo,
+                'vehiculo_id' => $chofer->vehiculo_id,
                 'foto_url' => $chofer->foto ? Storage::disk('public')->url($chofer->foto) : null,
                 'horarios' => $chofer->horarios->map(fn($horario) => [
                     'id' => $horario->id,
                     'dia' => $horario->dia,
                     'empieza' => $this->hora($horario->empieza),
                     'termina' => $this->hora($horario->termina),
-                    'nota' => $horario->nota,
+                    // 'nota' => $horario->nota,
                 ])->values()->all(),
             ],
+            'lugares' => $this->catalogo($chofer),
+            'vehiculos' => $this->vehiculos(),
         ]);
     }
 
     public function update(ChoferRequest $request, Chofer $chofer): RedirectResponse
     {
         $chofer->update($this->attributes($request, $chofer));
+        $this->syncLugares($chofer, $request);
 
-        return redirect()->route('drivers.edit', $chofer);
+        Inertia::flash('toast', [
+            'type' => 'success',
+            'message' => 'Cambios guardados correctamente.',
+        ]);
+
+        return redirect()->route('drivers.index');
     }
 
     public function destroy(Chofer $chofer): RedirectResponse
@@ -84,7 +110,7 @@ class ChoferController extends Controller
      */
     private function attributes(ChoferRequest $request, ?Chofer $chofer = null): array
     {
-        $data = $request->safe()->except('foto');
+        $data = $request->safe()->except(['foto', 'horarios', 'lugares']);
         $data['slug'] = $data['slug'] ?: $this->uniqueSlug($data['nombre'], $chofer);
 
         if ($request->hasFile('foto')) {
@@ -123,6 +149,60 @@ class ChoferController extends Controller
             ->when($ignore, fn($query) => $query->whereKeyNot($ignore->id))
             ->where('slug', $slug)
             ->exists();
+    }
+
+    /**
+     * @return list<array{id: int, nombre: string, ciudad: string, elegido: bool, orden: int}>
+     */
+    private function catalogo(?Chofer $chofer = null): array
+    {
+        $elegidos = $chofer
+            ? $chofer->lugares->mapWithKeys(fn (Lugar $lugar) => [$lugar->id => (int) $lugar->pivot->orden])
+            : collect();
+
+        return Lugar::query()
+            ->orderBy('ciudad')
+            ->orderBy('nombre')
+            ->get()
+            ->map(fn (Lugar $lugar) => [
+                'id' => $lugar->id,
+                'nombre' => $lugar->nombre,
+                'ciudad' => $lugar->ciudad,
+                'elegido' => $elegidos->has($lugar->id),
+                'orden' => $elegidos->get($lugar->id, 0),
+            ])
+            ->all();
+    }
+
+    private function syncLugares(Chofer $chofer, ChoferRequest $request): void
+    {
+        $sync = [];
+
+        foreach ($request->validated('lugares') ?? [] as $fila) {
+            $sync[$fila['id']] = ['orden' => $fila['orden']];
+        }
+
+        $chofer->lugares()->sync($sync);
+    }
+
+    /**
+     * @return list<array{id: int, marca: string, modelo: string, anio: int|null, color: string|null}>
+     */
+    private function vehiculos(): array
+    {
+        return Vehiculo::query()
+            ->orderBy('marca')
+            ->orderBy('modelo')
+            ->orderBy('anio')
+            ->get()
+            ->map(fn (Vehiculo $vehiculo) => [
+                'id' => $vehiculo->id,
+                'marca' => $vehiculo->marca,
+                'modelo' => $vehiculo->modelo,
+                'anio' => $vehiculo->anio,
+                'color' => $vehiculo->color,
+            ])
+            ->all();
     }
 
     private function hora(?string $valor): ?string
