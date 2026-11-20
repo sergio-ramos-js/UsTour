@@ -2,6 +2,7 @@
 
 use App\Models\Chofer;
 use App\Models\User;
+use App\Models\Vehiculo;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 
@@ -15,6 +16,85 @@ test('authenticated users can open the driver list', function () {
     $this->get(route('drivers.index'))
         ->assertOk()
         ->assertInertia(fn ($page) => $page->component('admin/drivers/index'));
+});
+
+test('la lista muestra nombre, slug, vehiculo, telefono y estado', function () {
+    $this->actingAs(User::factory()->create());
+
+    $vehiculo = Vehiculo::query()->create([
+        'marca' => 'Toyota',
+        'modelo' => 'Hiace',
+        'anio' => 2019,
+        'color' => 'Blanco',
+        'portaequipaje' => true,
+        'capacidad_pasajeros' => 8,
+    ]);
+
+    Chofer::query()->create([
+        'nombre' => 'Marcos Benítez',
+        'slug' => 'marcos-benitez',
+        'telefono' => '2901555000',
+        'correo' => 'marcos@example.com',
+        'activo' => true,
+        'vehiculo_id' => $vehiculo->id,
+    ]);
+
+    $this->get(route('drivers.index'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->component('admin/drivers/index')
+            ->where('busqueda', '')
+            ->where('choferes.data.0.nombre', 'Marcos Benítez')
+            ->where('choferes.data.0.slug', 'marcos-benitez')
+            ->where('choferes.data.0.telefono', '2901555000')
+            ->where('choferes.data.0.correo', 'marcos@example.com')
+            ->where('choferes.data.0.activo', true)
+            ->where('choferes.data.0.vehiculo', 'Toyota Hiace 2019 Blanco'));
+});
+
+test('la lista busca por nombre slug o telefono y pagina de a 20', function () {
+    $this->actingAs(User::factory()->create());
+
+    Chofer::query()->create([
+        'nombre' => 'Ana Ruiz',
+        'slug' => 'ana-ruiz',
+        'telefono' => '2901999888',
+        'activo' => true,
+    ]);
+
+    for ($numero = 1; $numero <= 20; $numero++) {
+        Chofer::query()->create([
+            'nombre' => sprintf('Chofer %02d', $numero),
+            'slug' => 'chofer-'.$numero,
+            'telefono' => '29010000'.$numero,
+            'activo' => true,
+        ]);
+    }
+
+    $this->get(route('drivers.index'))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('choferes.per_page', 20)
+            ->where('choferes.total', 21)
+            ->where('choferes.last_page', 2)
+            ->has('choferes.data', 20));
+
+    $this->get(route('drivers.index', ['page' => 2]))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('choferes.current_page', 2)
+            ->has('choferes.data', 1));
+
+    $this->get(route('drivers.index', ['q' => '2901999888']))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page
+            ->where('busqueda', '2901999888')
+            ->where('choferes.total', 1)
+            ->where('choferes.data.0.slug', 'ana-ruiz'));
+
+    $this->get(route('drivers.index', ['q' => 'ana-ruiz']))
+        ->assertOk()
+        ->assertInertia(fn ($page) => $page->where('choferes.data.0.nombre', 'Ana Ruiz'));
 });
 
 test('an admin can create a driver and the slug comes from the name', function () {

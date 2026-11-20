@@ -15,9 +15,21 @@ type LugarFormData = {
     id: number;
     nombre: string;
     descripcion: string | null;
+    descripcion_en: string | null;
+    descripcion_pt: string | null;
+    descripcion_zh: string | null;
     ciudad: string;
     fotos: LugarFoto[];
 };
+
+const traducciones = [
+    ['descripcion_en', 'Descripción en inglés'],
+    ['descripcion_pt', 'Descripción en portugués'],
+    ['descripcion_zh', 'Descripción en chino'],
+] as const;
+
+const claseTexto =
+    'border-input w-full rounded-md border bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]';
 
 export default function LugarForm({ lugar }: { lugar: LugarFormData | null }) {
     const editing = lugar !== null;
@@ -49,16 +61,34 @@ export default function LugarForm({ lugar }: { lugar: LugarFormData | null }) {
                                 <Input id="ciudad" name="ciudad" defaultValue={lugar?.ciudad ?? 'Ushuaia'} required />
                                 <InputError message={errors.ciudad} />
                             </div>
-                            <div className="grid gap-2">
-                                <Label htmlFor="descripcion">Descripción</Label>
-                                <textarea
-                                    id="descripcion"
-                                    name="descripcion"
-                                    defaultValue={lugar?.descripcion ?? ''}
-                                    rows={4}
-                                    className="border-input w-full rounded-md border bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
-                                />
-                                <InputError message={errors.descripcion} />
+                            <div className="grid gap-4">
+                                <div className="grid gap-2">
+                                    <Label htmlFor="descripcion">Descripción</Label>
+                                    <textarea
+                                        id="descripcion"
+                                        name="descripcion"
+                                        defaultValue={lugar?.descripcion ?? ''}
+                                        rows={4}
+                                        className={claseTexto}
+                                    />
+                                    <InputError message={errors.descripcion} />
+                                </div>
+                                {traducciones.map(([campo, etiqueta]) => (
+                                    <div key={campo} className="grid gap-2">
+                                        <Label htmlFor={campo}>{etiqueta}</Label>
+                                        <textarea
+                                            id={campo}
+                                            name={campo}
+                                            defaultValue={lugar?.[campo] ?? ''}
+                                            rows={3}
+                                            className={claseTexto}
+                                        />
+                                        <InputError message={errors[campo]} />
+                                    </div>
+                                ))}
+                                <p className="text-sm text-muted-foreground">
+                                    Si un idioma queda vacío, se muestra la descripción en español.
+                                </p>
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="fotos">Fotos</Label>

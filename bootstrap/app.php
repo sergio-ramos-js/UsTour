@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Middleware\HandleAppearance;
+use App\Http\Middleware\SetLocale;
 use App\Http\Middleware\HandleInertiaRequests;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -15,9 +16,10 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        $middleware->encryptCookies(except: ['appearance', 'appearance_public', 'sidebar_state']);
+        $middleware->encryptCookies(except: ['appearance', 'appearance_public', 'sidebar_state', 'locale']);
 
         $middleware->web(append: [
+            SetLocale::class,
             HandleAppearance::class,
             HandleInertiaRequests::class,
             AddLinkHeadersForPreloadedAssets::class,

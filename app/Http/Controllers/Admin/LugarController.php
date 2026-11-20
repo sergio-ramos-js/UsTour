@@ -39,7 +39,7 @@ class LugarController extends Controller
 
     public function store(LugarRequest $request): RedirectResponse
     {
-        $lugar = Lugar::query()->create($request->safe()->only(['nombre', 'descripcion', 'ciudad']));
+        $lugar = Lugar::query()->create($request->safe()->only($this->campos()));
         $this->guardarFotos($lugar, $request);
 
         Inertia::flash('toast', [
@@ -59,6 +59,9 @@ class LugarController extends Controller
                 'id' => $lugar->id,
                 'nombre' => $lugar->nombre,
                 'descripcion' => $lugar->descripcion,
+                'descripcion_en' => $lugar->descripcion_en,
+                'descripcion_pt' => $lugar->descripcion_pt,
+                'descripcion_zh' => $lugar->descripcion_zh,
                 'ciudad' => $lugar->ciudad,
                 'fotos' => $lugar->fotos->map(fn (LugarFoto $foto) => [
                     'id' => $foto->id,
@@ -70,7 +73,7 @@ class LugarController extends Controller
 
     public function update(LugarRequest $request, Lugar $lugar): RedirectResponse
     {
-        $lugar->update($request->safe()->only(['nombre', 'descripcion', 'ciudad']));
+        $lugar->update($request->safe()->only($this->campos()));
         $this->guardarFotos($lugar, $request);
 
         Inertia::flash('toast', [
@@ -113,6 +116,21 @@ class LugarController extends Controller
                 'orden' => $orden,
             ]);
         }
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function campos(): array
+    {
+        return [
+            'nombre',
+            'descripcion',
+            'descripcion_en',
+            'descripcion_pt',
+            'descripcion_zh',
+            'ciudad',
+        ];
     }
 
     private function url(?LugarFoto $foto): ?string

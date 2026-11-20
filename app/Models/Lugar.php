@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['nombre', 'descripcion', 'ciudad'])]
+#[Fillable(['nombre', 'descripcion', 'descripcion_en', 'descripcion_pt', 'descripcion_zh', 'ciudad'])]
 class Lugar extends Model
 {
     protected $table = 'lugares';

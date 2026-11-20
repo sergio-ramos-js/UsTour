@@ -1,15 +1,30 @@
-import { Head } from '@inertiajs/react';
+import { Head, usePage } from '@inertiajs/react';
 import { Car, ChevronLeft, ChevronRight, Clock, MapPin, Moon, Phone, Sun, User, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { usePublicAppearance } from '@/hooks/use-appearance';
-import { descripcionPorDefecto } from '@/lib/descripcion-chofer';
 import drivers from '@/routes/drivers';
+
+const idiomas = [
+    { codigo: 'es', nombre: 'Español' },
+    { codigo: 'en', nombre: 'English' },
+    { codigo: 'pt', nombre: 'Português' },
+    { codigo: 'zh', nombre: '中文' },
+] as const;
+
+function useTextos(): Record<string, string> {
+    return usePage().props.textos;
+}
+
+function conNombre(texto: string, nombre: string): string {
+    return texto.replaceAll(':nombre', nombre);
+}
 
 /* const driver = {
     name: 'Marcos Benítez',
     city: 'Ushuaia',
-    description: descripcionPorDefecto,
+    description:
+        '¿Necesitas ir a un lugar fuera de la ciudad y no encuentras transporte adecuado?\n  Yo te llevo! Soy chofer particular y te puedo llevar a los lugares más lindos de Ushuaia.',
     whatsapp: '5492901555000',
     photo: null as string | null,
     telefono: '+54 9 2901 555000',
@@ -83,6 +98,7 @@ function FotosDelLugar({ nombre, fotos }: { nombre: string; fotos: string[] }) {
     const [fallidas, setFallidas] = useState<number[]>([]);
     const [arrastrando, setArrastrando] = useState(false);
     const varias = fotos.length > 1;
+    const textos = useTextos();
 
     if (fotos.length === 0) {
         return <FotoVacia nombre={nombre} />;
@@ -206,7 +222,7 @@ function FotosDelLugar({ nombre, fotos }: { nombre: string; fotos: string[] }) {
                 onPointerUp={alSoltar}
                 onPointerCancel={alCancelar}
                 tabIndex={varias ? 0 : undefined}
-                aria-label={varias ? `Fotos de ${nombre}` : undefined}
+                aria-label={varias ? conNombre(textos.fotos_de, nombre) : undefined}
                 className={`flex overflow-x-auto select-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
                     arrastrando ? 'cursor-grabbing snap-none [&_button]:cursor-grabbing' : 'snap-x snap-mandatory'
                 }`}
@@ -220,7 +236,7 @@ function FotosDelLugar({ nombre, fotos }: { nombre: string; fotos: string[] }) {
                             type="button"
                             data-foto={i}
                             onClick={() => abrir(i)}
-                            aria-label={`Ver foto de ${nombre} en grande`}
+                            aria-label={conNombre(textos.ver_foto, nombre)}
                             className="h-44 min-w-full shrink-0 cursor-zoom-in snap-start"
                         >
                             <img
@@ -241,7 +257,7 @@ function FotosDelLugar({ nombre, fotos }: { nombre: string; fotos: string[] }) {
                     <button
                         type="button"
                         onClick={() => ir(-1)}
-                        aria-label="Foto anterior"
+                        aria-label={textos.foto_anterior}
                         className="absolute top-1/2 left-2 flex size-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70"
                     >
                         <ChevronLeft className="size-4" aria-hidden="true" />
@@ -249,7 +265,7 @@ function FotosDelLugar({ nombre, fotos }: { nombre: string; fotos: string[] }) {
                     <button
                         type="button"
                         onClick={() => ir(1)}
-                        aria-label="Foto siguiente"
+                        aria-label={textos.foto_siguiente}
                         className="absolute top-1/2 right-2 flex size-8 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70"
                     >
                         <ChevronRight className="size-4" aria-hidden="true" />
@@ -307,6 +323,7 @@ function LuzDeFoto({
     const panel = useRef<HTMLDivElement>(null);
     const inicio = useRef<number | null>(null);
     const varias = fotos.length > 1;
+    const textos = useTextos();
 
     useEffect(() => {
         panel.current?.focus();
@@ -353,7 +370,7 @@ function LuzDeFoto({
             ref={panel}
             role="dialog"
             aria-modal="true"
-            aria-label={`Foto de ${nombre}`}
+            aria-label={conNombre(textos.foto_de, nombre)}
             tabIndex={-1}
             onClick={alCerrar}
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4 outline-none"
@@ -365,7 +382,7 @@ function LuzDeFoto({
                     event.stopPropagation();
                     alCerrar();
                 }}
-                aria-label="Cerrar"
+                aria-label={textos.cerrar}
                 className="absolute top-4 right-4 flex size-10 cursor-pointer items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25"
             >
                 <X className="size-5" aria-hidden="true" />
@@ -377,7 +394,7 @@ function LuzDeFoto({
                         event.stopPropagation();
                         paso(-1);
                     }}
-                    aria-label="Foto anterior"
+                    aria-label={textos.foto_anterior}
                     className="absolute top-1/2 left-3 z-10 flex size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25"
                 >
                     <ChevronLeft className="size-5" aria-hidden="true" />
@@ -416,7 +433,7 @@ function LuzDeFoto({
                         event.stopPropagation();
                         paso(1);
                     }}
-                    aria-label="Foto siguiente"
+                    aria-label={textos.foto_siguiente}
                     className="absolute top-1/2 right-3 z-10 flex size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-white/15 text-white hover:bg-white/25"
                 >
                     <ChevronRight className="size-5" aria-hidden="true" />
@@ -454,8 +471,83 @@ export default function DriverPage({ chofer }: { slug: string; chofer: ChoferPub
     return <PaginaChofer chofer={chofer} />;
 }
 
+function MenuIdioma() {
+    const textos = useTextos();
+    const locale = usePage().props.locale;
+    const [abierto, setAbierto] = useState(false);
+    const menu = useRef<HTMLDivElement>(null);
+    const actual = idiomas.find((idioma) => idioma.codigo === locale) ?? idiomas[0];
+
+    useEffect(() => {
+        if (!abierto) {
+            return;
+        }
+
+        function cerrar(event: MouseEvent) {
+            if (!menu.current?.contains(event.target as Node)) {
+                setAbierto(false);
+            }
+        }
+
+        function tecla(event: KeyboardEvent) {
+            if (event.key === 'Escape') {
+                setAbierto(false);
+            }
+        }
+
+        document.addEventListener('mousedown', cerrar);
+        document.addEventListener('keydown', tecla);
+
+        return () => {
+            document.removeEventListener('mousedown', cerrar);
+            document.removeEventListener('keydown', tecla);
+        };
+    }, [abierto]);
+
+    function elegir(codigo: string) {
+        document.cookie = `locale=${codigo};path=/;max-age=31536000;SameSite=Lax`;
+        window.location.reload();
+    }
+
+    return (
+        <div ref={menu} className="relative">
+            <button
+                type="button"
+                aria-haspopup="listbox"
+                aria-expanded={abierto}
+                aria-label={textos.idioma}
+                onClick={() => setAbierto((valor) => !valor)}
+                className="inline-flex cursor-pointer items-center rounded-full bg-neutral-950 px-3 py-1.5 text-sm text-white shadow-md ring-1 ring-white/80 hover:bg-neutral-800"
+            >
+                {actual.nombre}
+            </button>
+            {abierto && (
+                <ul
+                    role="listbox"
+                    className="absolute right-0 z-20 mt-2 min-w-36 overflow-hidden rounded-xl bg-neutral-950 py-1 text-sm text-white shadow-md ring-1 ring-white/80"
+                >
+                    {idiomas.map((idioma) => (
+                        <li key={idioma.codigo}>
+                            <button
+                                type="button"
+                                role="option"
+                                aria-selected={idioma.codigo === locale}
+                                onClick={() => elegir(idioma.codigo)}
+                                className="block w-full cursor-pointer px-3 py-2 text-left hover:bg-neutral-800"
+                            >
+                                {idioma.nombre}
+                            </button>
+                        </li>
+                    ))}
+                </ul>
+            )}
+        </div>
+    );
+}
+
 function PaginaChofer({ chofer }: { chofer: ChoferPublico }) {
     const { resolvedAppearance, updateAppearance } = usePublicAppearance();
+    const textos = useTextos();
     const isDark = resolvedAppearance === 'dark';
 
     return (
@@ -465,33 +557,38 @@ function PaginaChofer({ chofer }: { chofer: ChoferPublico }) {
                 <header className="relative bg-neutral-950 text-white">
                     <img
                         src="/images/ushuaia-header.jpg"
-                        alt="Vista aérea de Ushuaia, con las montañas nevadas y el puerto"
+                        alt={textos.alt_encabezado}
                         className="block h-[70vh] w-full object-cover object-center sm:h-[90vh]"
                     />
                     <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/50 to-transparent" />
                     <div className="absolute inset-x-0 top-0 z-10">
                         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-6">
                             <p className="text-2xl font-semibold tracking-tight sm:text-3xl">Ushuaia</p>
-                            <button
-                                type="button"
-                                onClick={() => updateAppearance(isDark ? 'light' : 'dark')}
-                                className="cursor-pointer inline-flex shrink-0 items-center gap-2 rounded-full bg-neutral-950 px-3 py-1.5 text-sm text-white shadow-md ring-1 ring-white/80 hover:bg-neutral-800"
-                                aria-label={isDark ? 'Activar modo claro' : 'Activar modo oscuro'}
-                            >
-                                {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
-                                {isDark ? 'Claro' : 'Oscuro'}
-                            </button>
+                            <div className="flex items-center gap-2">
+                                <MenuIdioma />
+                                <button
+                                    type="button"
+                                    onClick={() => updateAppearance(isDark ? 'light' : 'dark')}
+                                    className="inline-flex shrink-0 cursor-pointer items-center gap-2 rounded-full bg-neutral-950 px-3 py-1.5 text-sm text-white shadow-md ring-1 ring-white/80 hover:bg-neutral-800"
+                                    aria-label={isDark ? textos.activar_claro : textos.activar_oscuro}
+                                >
+                                    {isDark ? <Sun className="size-4" /> : <Moon className="size-4" />}
+                                    {isDark ? textos.claro : textos.oscuro}
+                                </button>
+                            </div>
                         </div>
                     </div>
                     <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/40 to-transparent">
                         <div className="mx-auto flex max-w-5xl flex-col gap-3 px-4 py-6 sm:gap-4 sm:px-6 sm:py-10">
-                            <h1 className="text-4xl font-semibold tracking-tight sm:text-6xl lg:text-7xl">UsTour</h1>
+                            <h1 translate="no" className="notranslate text-4xl font-semibold tracking-tight sm:text-6xl lg:text-7xl">
+                                UsTour
+                            </h1>
                             <p className="max-w-2xl text-sm leading-relaxed text-white/90 sm:text-base">
-                                Aquí encontrarás chofer para ir a distintos puntos turísticos de esta bella ciudad.
+                                {textos.intro_1}
                                 <br />
-                                El viaje es particular: consultás con el chofer el destino, la duración y el precio.
+                                {textos.intro_2}
                                 <br />
-                                ¡Que tengas un hermoso paseo y disfrutes cada momento!
+                                {textos.intro_3}
                             </p>
                         </div>
                     </div>
@@ -512,7 +609,7 @@ function PaginaChofer({ chofer }: { chofer: ChoferPublico }) {
                             <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-white to-transparent dark:from-neutral-900" />
                             <h2 className="absolute right-5 bottom-2 left-5 flex items-center gap-2 text-lg font-semibold">
                                 <User className="size-5 shrink-0" aria-hidden="true" />
-                                Chofer
+                                {textos.chofer}
                             </h2>
                         </div>
                         <div className="relative px-5 pt-5 pb-5">
@@ -523,7 +620,7 @@ function PaginaChofer({ chofer }: { chofer: ChoferPublico }) {
                             />
                             <p className="pr-20 text-xl font-medium">{chofer.nombre}</p>
                             <p className="mt-3 text-sm whitespace-pre-line text-neutral-600 dark:text-neutral-300">
-                                {chofer.descripcion?.trim() || descripcionPorDefecto}
+                                {chofer.descripcion?.trim() || textos.descripcion_defecto}
                             </p>
                             {chofer.whatsapp && (
                                 <a
@@ -533,7 +630,7 @@ function PaginaChofer({ chofer }: { chofer: ChoferPublico }) {
                                     <svg viewBox="0 0 24 24" className="size-4" aria-hidden="true" fill="currentColor">
                                         <path d="M20.5 3.5A11 11 0 0 0 2.1 16.8L1 23l6.3-1.1A11 11 0 0 0 12 23a11 11 0 0 0 8.5-19.5zM12 21a9 9 0 0 1-4.6-1.3l-.3-.2-3.7.6.6-3.6-.2-.3A9 9 0 1 1 12 21zm5-6.7c-.3-.1-1.6-.8-1.8-.9s-.4-.1-.6.1-.7.9-.8 1-.3.2-.6.1a7.4 7.4 0 0 1-2.2-1.4 8.2 8.2 0 0 1-1.5-1.9c-.2-.3 0-.4.1-.6l.4-.5.2-.3a.5.5 0 0 0 0-.5c-.1-.1-.6-1.5-.8-2s-.4-.5-.6-.5h-.5a1 1 0 0 0-.7.3 3 3 0 0 0-.9 2.2 5.2 5.2 0 0 0 1.1 2.7 11.8 11.8 0 0 0 4.5 4.1c.5.2 1 .4 1.5.5a3.6 3.6 0 0 0 1.7.1 2.7 2.7 0 0 0 1.8-1.3 2.2 2.2 0 0 0 .2-1.3c-.1-.2-.3-.2-.6-.4z" />
                                     </svg>
-                                    Escribir por WhatsApp
+                                    {textos.whatsapp}
                                 </a>
                             )}
                         </div>
@@ -550,12 +647,12 @@ function PaginaChofer({ chofer }: { chofer: ChoferPublico }) {
                             <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-white to-transparent dark:from-neutral-900" />
                             <h2 className="absolute right-5 bottom-2 left-5 flex items-center gap-2 text-lg font-semibold">
                                 <Clock className="size-5 shrink-0" aria-hidden="true" />
-                                Horarios
+                                {textos.horarios}
                             </h2>
                         </div>
                         {!chofer.horarios || chofer.horarios.length === 0 ? (
                             <p className="mt-3 px-5 text-sm text-neutral-600 dark:text-neutral-300">
-                                Sin horarios cargados.
+                                {textos.sin_horarios}
                             </p>
                         ) : (
                             <ul className="mt-3 space-y-2 px-5 text-sm">
@@ -564,7 +661,7 @@ function PaginaChofer({ chofer }: { chofer: ChoferPublico }) {
                                         <div className="flex justify-between gap-4">
                                             <span>{horario.dia}</span>
                                             <span className="text-neutral-600 dark:text-neutral-300">
-                                                {horario.termina ? `${horario.empieza} a ${horario.termina}` : horario.empieza}
+                                                {horario.termina ? `${horario.empieza} ${textos.a} ${horario.termina}` : horario.empieza}
                                             </span>
                                         </div>
                                         {/* {horario.nota && <p className="text-neutral-500">{horario.nota}</p>} */}
@@ -574,19 +671,19 @@ function PaginaChofer({ chofer }: { chofer: ChoferPublico }) {
                         )}
                         <h2 className="mt-4 flex items-center gap-2 border-t border-neutral-200 px-5 pt-4 text-base font-semibold dark:border-neutral-800">
                             <Phone className="size-4 shrink-0" aria-hidden="true" />
-                            Contacto
+                            {textos.contacto}
                         </h2>
                         <dl className="mt-3 space-y-2 px-5 pb-5 text-sm">
                             <div className="flex justify-between gap-4">
-                                <dt>Teléfono</dt>
+                                <dt>{textos.telefono}</dt>
                                 <dd>{chofer?.telefono}</dd>
                             </div>
                             <div className="flex justify-between gap-4">
-                                <dt>Teléfono 2</dt>
+                                <dt>{textos.telefono_2}</dt>
                                 <dd>{chofer?.telefono_secundario}</dd>
                             </div>
                             <div className="flex justify-between gap-4">
-                                <dt>Email</dt>
+                                <dt>{textos.email}</dt>
                                 <dd>{chofer?.correo}</dd>
                             </div>
                         </dl>
@@ -600,38 +697,38 @@ function PaginaChofer({ chofer }: { chofer: ChoferPublico }) {
                             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/55 to-white dark:via-neutral-900/70 dark:to-neutral-900" />
                             <h2 className="absolute right-5 bottom-0 left-5 flex items-center gap-2 text-lg font-semibold">
                                 <Car className="size-5 shrink-0" aria-hidden="true" />
-                                Vehículo
+                                {textos.vehiculo}
                             </h2>
                         </div>
                         <div className="px-5 pb-5">
                             {chofer.vehiculo ? (
                                 <dl className="mt-3 space-y-2 text-sm">
                                     <div className="flex justify-between gap-4">
-                                        <dt>Marca, modelo y año</dt>
+                                        <dt>{textos.marca_modelo_anio}</dt>
                                         <dd>
                                             {chofer.vehiculo.marca}, {chofer.vehiculo.modelo}, {chofer.vehiculo.anio ?? '—'}
                                         </dd>
                                     </div>
                                     <div className="flex justify-between gap-4">
-                                        <dt>Color</dt>
+                                        <dt>{textos.color}</dt>
                                         <dd>{chofer.vehiculo.color || '—'}</dd>
                                     </div>
                                     <div className="flex justify-between gap-4">
-                                        <dt>Pasajeros</dt>
+                                        <dt>{textos.pasajeros}</dt>
                                         <dd>{chofer.vehiculo.capacidad_pasajeros}</dd>
                                     </div>
                                     <div className="flex justify-between gap-3">
-                                        <dt>Baúl</dt>
+                                        <dt>{textos.baul}</dt>
                                         <dd>{chofer.vehiculo.capacidad_baul || '—'}</dd>
                                     </div>
                                     <div className="flex justify-between gap-4">
-                                        <dt>Portaequipaje</dt>
-                                        <dd>{chofer.vehiculo.portaequipaje ? 'Sí' : 'No'}</dd>
+                                        <dt>{textos.portaequipaje}</dt>
+                                        <dd>{chofer.vehiculo.portaequipaje ? textos.si : textos.no}</dd>
                                     </div>
                                 </dl>
                             ) : (
                                 <p className="mt-3 text-sm text-neutral-600 dark:text-neutral-300">
-                                    Sin vehículo cargado.
+                                    {textos.sin_vehiculo}
                                 </p>
                             )}
                         </div>
@@ -648,12 +745,12 @@ function PaginaChofer({ chofer }: { chofer: ChoferPublico }) {
                             <div className="absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-white to-transparent dark:from-neutral-900" />
                             <h2 className="absolute right-5 bottom-2 left-5 flex items-center gap-2 text-lg font-semibold">
                                 <MapPin className="size-5 shrink-0" aria-hidden="true" />
-                                Viajes
+                                {textos.viajes}
                             </h2>
                         </div>
                         {chofer.lugares.length === 0 ? (
                             <p className="px-5 pt-1 pb-5 text-sm text-neutral-600 dark:text-neutral-300">
-                                Sin lugares cargados.
+                                {textos.sin_lugares}
                             </p>
                         ) : (
                             <ul className="grid grid-flow-col grid-rows-4 gap-x-4 gap-y-2 px-5 pt-1 pb-5 text-sm">
@@ -666,9 +763,9 @@ function PaginaChofer({ chofer }: { chofer: ChoferPublico }) {
                 </div>
 
                 <section className="mx-auto max-w-5xl px-6 pb-12">
-                    <h2 className="text-lg font-semibold">Lugares</h2>
+                    <h2 className="text-lg font-semibold">{textos.lugares}</h2>
                     {chofer.lugares.length === 0 ? (
-                        <p className="mt-4 text-sm text-neutral-600 dark:text-neutral-300">Sin lugares cargados.</p>
+                        <p className="mt-4 text-sm text-neutral-600 dark:text-neutral-300">{textos.sin_lugares}</p>
                     ) : (
                         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                             {chofer.lugares.map((lugar, index) => (
@@ -677,7 +774,7 @@ function PaginaChofer({ chofer }: { chofer: ChoferPublico }) {
                         </div>
                     )}
                     <p className="mt-4 text-xs text-neutral-500">
-                        Fotos del encabezado, de Chofer y de Horarios: archivos propios. La satelital de Viajes: Wikimedia Commons. La foto del vehículo es de muestra.
+                        {textos.creditos}
                     </p>
                 </section>
             </main>

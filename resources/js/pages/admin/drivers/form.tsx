@@ -25,6 +25,9 @@ type ChoferFormData = {
     nombre: string;
     slug: string;
     descripcion: string | null;
+    descripcion_en: string | null;
+    descripcion_pt: string | null;
+    descripcion_zh: string | null;
     telefono: string | null;
     telefono_secundario: string | null;
     correo: string | null;
@@ -451,7 +454,7 @@ export default function ChoferForm({
                                     </div>
 
                                     <div className="grid gap-2">
-                                        <Label>Fondo de la card</Label>
+                                        <Label>Imagen de Fondo de la tarjeta</Label>
                                         <div className="flex gap-4 text-sm">
                                             <label className="flex items-center gap-2">
                                                 <input
@@ -478,17 +481,41 @@ export default function ChoferForm({
                                         <InputError message={errors.fondo} />
                                     </div>
 
-                                    <div className="grid gap-2">
-                                        <Label htmlFor="descripcion">Descripción</Label>
-                                        <textarea
-                                            id="descripcion"
-                                            name="descripcion"
-                                            defaultValue={chofer?.descripcion ?? ''}
-                                            placeholder={descripcionPorDefecto}
-                                            rows={4}
-                                            className="border-input placeholder:text-muted-foreground w-full rounded-md border bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
-                                        />
-                                        <InputError message={errors.descripcion} />
+                                    <div className="grid gap-4">
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="descripcion">Descripción</Label>
+                                            <textarea
+                                                id="descripcion"
+                                                name="descripcion"
+                                                defaultValue={chofer?.descripcion ?? ''}
+                                                placeholder={descripcionPorDefecto}
+                                                rows={4}
+                                                className="border-input placeholder:text-muted-foreground w-full rounded-md border bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
+                                            />
+                                            <InputError message={errors.descripcion} />
+                                        </div>
+                                        {(
+                                            [
+                                                ['descripcion_en', 'Descripción en inglés'],
+                                                ['descripcion_pt', 'Descripción en portugués'],
+                                                ['descripcion_zh', 'Descripción en chino'],
+                                            ] as const
+                                        ).map(([campo, etiqueta]) => (
+                                            <div key={campo} className="grid gap-2">
+                                                <Label htmlFor={`chofer-${campo}`}>{etiqueta}</Label>
+                                                <textarea
+                                                    id={`chofer-${campo}`}
+                                                    name={campo}
+                                                    defaultValue={chofer?.[campo] ?? ''}
+                                                    rows={1}
+                                                    className="border-input w-full rounded-md border bg-transparent px-3 py-2 text-sm shadow-xs outline-none focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-[3px]"
+                                                />
+                                                <InputError message={errors[campo]} />
+                                            </div>
+                                        ))}
+                                        <p className="text-sm text-muted-foreground">
+                                            Si un idioma queda vacío, se muestra la descripción en español. Si la de español también está vacía, se usa el texto de ejemplo.
+                                        </p>
                                     </div>
 
                                     <VehiculoDelChofer

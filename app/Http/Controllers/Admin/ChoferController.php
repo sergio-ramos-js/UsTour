@@ -8,6 +8,7 @@ use App\Models\Chofer;
 use App\Models\Lugar;
 use App\Models\Vehiculo;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
@@ -16,12 +17,38 @@ use Illuminate\Support\Carbon;
 
 class ChoferController extends Controller
 {
-    public function index(): Response
+    public function index(Request $request): Response
     {
+        $busqueda = $request->string('q')->trim()->limit(100, '')->toString();
+
+        $choferes = Chofer::query()
+            ->with('vehiculo:id,marca,modelo,anio,color')
+            ->when($busqueda !== '', function ($query) use ($busqueda) {
+                $like = '%'.$busqueda.'%';
+
+                $query->where(function ($query) use ($like) {
+                    $query->where('nombre', 'like', $like)
+                        ->orWhere('slug', 'like', $like)
+                        ->orWhere('telefono', 'like', $like)
+                        ->orWhere('correo', 'like', $like);
+                });
+            })
+            ->orderBy('nombre')
+            ->paginate(20, ['id', 'nombre', 'slug', 'telefono', 'correo', 'activo', 'vehiculo_id'])
+            ->withQueryString()
+            ->through(fn (Chofer $chofer) => [
+                'id' => $chofer->id,
+                'nombre' => $chofer->nombre,
+                'slug' => $chofer->slug,
+                'telefono' => $chofer->telefono,
+                'correo' => $chofer->correo,
+                'activo' => $chofer->activo,
+                'vehiculo' => $this->textoVehiculo($chofer->vehiculo),
+            ]);
+
         return Inertia::render('admin/drivers/index', [
-            'choferes' => Chofer::query()
-                ->orderBy('nombre')
-                ->get(['id', 'nombre', 'slug', 'telefono', 'activo']),
+            'choferes' => $choferes,
+            'busqueda' => $busqueda,
         ]);
     }
 
@@ -61,6 +88,9 @@ class ChoferController extends Controller
                 'nombre' => $chofer->nombre,
                 'slug' => $chofer->slug,
                 'descripcion' => $chofer->descripcion,
+                'descripcion_en' => $chofer->descripcion_en,
+                'descripcion_pt' => $chofer->descripcion_pt,
+                'descripcion_zh' => $chofer->descripcion_zh,
                 'telefono' => $chofer->telefono,
                 'telefono_secundario' => $chofer->telefono_secundario,
                 'correo' => $chofer->correo,
@@ -103,6 +133,17 @@ class ChoferController extends Controller
         $chofer->delete();
 
         return redirect()->route('drivers.index');
+    }
+
+    private function textoVehiculo(?Vehiculo $vehiculo): ?string
+    {
+        if ($vehiculo === null) {
+            return null;
+        }
+
+        return collect([$vehiculo->marca, $vehiculo->modelo, $vehiculo->anio, $vehiculo->color])
+            ->filter()
+            ->implode(' ');
     }
 
     /**

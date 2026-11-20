@@ -26,7 +26,12 @@ class DriverPageController extends Controller
             'slug' => $slug,
             'chofer' => $chofer ? [
                 'nombre' => $chofer->nombre,
-                'descripcion' => $chofer->descripcion,
+                'descripcion' => $this->texto(
+                    $chofer->descripcion,
+                    $chofer->descripcion_en,
+                    $chofer->descripcion_pt,
+                    $chofer->descripcion_zh,
+                ),
                 'telefono' => $chofer->telefono,
                 'telefono_secundario' => $chofer->telefono_secundario,
                 'correo' => $chofer->correo,
@@ -54,7 +59,12 @@ class DriverPageController extends Controller
                 ] : null,
                 'lugares' => $chofer->lugares->map(fn ($lugar) => [
                     'nombre' => $lugar->nombre,
-                    'descripcion' => $lugar->descripcion,
+                    'descripcion' => $this->texto(
+                        $lugar->descripcion,
+                        $lugar->descripcion_en,
+                        $lugar->descripcion_pt,
+                        $lugar->descripcion_zh,
+                    ),
                     'fotos' => $lugar->fotos
                         ->map(fn ($foto) => Storage::disk('public')->url($foto->archivo))
                         ->values()
@@ -62,6 +72,29 @@ class DriverPageController extends Controller
                 ])->values()->all(),
             ] : null,
         ]);
+    }
+
+    /**
+     * The visitor's language, or Spanish when that translation is empty.
+     */
+    private function texto(?string $espanol, ?string $ingles, ?string $portugues, ?string $chino): ?string
+    {
+        $traduccion = match (app()->getLocale()) {
+            'en' => $ingles,
+            'pt' => $portugues,
+            'zh' => $chino,
+            default => $espanol,
+        };
+
+        $traduccion = is_string($traduccion) ? trim($traduccion) : '';
+
+        if ($traduccion !== '') {
+            return $traduccion;
+        }
+
+        $espanol = is_string($espanol) ? trim($espanol) : '';
+
+        return $espanol !== '' ? $espanol : null;
     }
 
     private function hora(?string $valor): ?string

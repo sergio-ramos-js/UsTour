@@ -6,7 +6,8 @@ import AppLayout from '@/layouts/app-layout';
 import AuthLayout from '@/layouts/auth-layout';
 import SettingsLayout from '@/layouts/settings/layout';
 
-const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
+const desdeEntorno = import.meta.env.VITE_APP_NAME;
+const appName = desdeEntorno && desdeEntorno !== 'Laravel' ? desdeEntorno : 'UsTour';
 
 void createInertiaApp({
     title: (title) => (title ? `${title} - ${appName}` : appName),
@@ -40,3 +41,17 @@ void createInertiaApp({
 
 // This will set light / dark mode on load...
 initializeTheme();
+
+marcarTituloIntraducible();
+
+new MutationObserver(marcarTituloIntraducible).observe(document.head, {
+    childList: true,
+    subtree: true,
+});
+
+function marcarTituloIntraducible(): void {
+    document.querySelectorAll('title').forEach((titulo) => {
+        titulo.setAttribute('translate', 'no');
+        titulo.classList.add('notranslate');
+    });
+}

@@ -48,6 +48,10 @@ class ChoferRequest extends FormRequest
             'fondo' => in_array($this->input('fondo'), ['masculino', 'femenino'], true)
                 ? $this->input('fondo')
                 : 'masculino',
+            'descripcion' => $this->textoOpcional('descripcion'),
+            'descripcion_en' => $this->textoOpcional('descripcion_en'),
+            'descripcion_pt' => $this->textoOpcional('descripcion_pt'),
+            'descripcion_zh' => $this->textoOpcional('descripcion_zh'),
         ];
 
         if ($this->route('chofer') === null) {
@@ -96,6 +100,13 @@ class ChoferRequest extends FormRequest
         return $filas === [] ? null : $filas;
     }
 
+    private function textoOpcional(string $campo): ?string
+    {
+        $texto = trim((string) $this->input($campo, ''));
+
+        return $texto === '' ? null : $texto;
+    }
+
     /**
      * Keep only the places the admin checked.
      *
@@ -134,6 +145,9 @@ class ChoferRequest extends FormRequest
                 Rule::unique('choferes', 'slug')->ignore($chofer),
             ],
             'descripcion' => ['nullable', 'string', 'max:2000'],
+            'descripcion_en' => ['nullable', 'string', 'max:2000'],
+            'descripcion_pt' => ['nullable', 'string', 'max:2000'],
+            'descripcion_zh' => ['nullable', 'string', 'max:2000'],
             'telefono' => ['nullable', 'string', 'max:30'],
             'telefono_secundario' => ['nullable', 'string', 'max:30'],
             'correo' => ['nullable', 'email', 'max:255'],
