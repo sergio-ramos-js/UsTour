@@ -27,14 +27,15 @@
     "si": "Sim",
     "no": "Não",
     "sin_vehiculo": "Sem veículo cadastrado.",
-    "viajes": "Passeios",
+    "viajes": "Lugares para onde te levo",
     "sin_lugares": "Sem lugares cadastrados.",
-    "lugares": "Lugares",
-    "creditos": "Fotos do cabeçalho, do motorista e dos horários: arquivos próprios. A imagem de satélite de Passeios: Wikimedia Commons. A foto do veículo é de amostra.",
+    "lugares": "Lugares para onde te levo",
+    "creditos": "Se você é motorista e quer publicar seu perfil nesta página, fale comigo pelo 2901 447747 ou por oigresrol20@gmail.com.",
     "fotos_de": "Fotos de :nombre",
     "ver_foto": "Ver a foto de :nombre em tamanho grande",
     "foto_de": "Foto de :nombre",
     "foto_anterior": "Foto anterior",
     "foto_siguiente": "Próxima foto",
-    "cerrar": "Fechar"
+    "cerrar": "Fechar",
+    "subir": "Voltar ao início"
 }

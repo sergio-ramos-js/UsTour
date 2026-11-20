@@ -20,7 +20,7 @@ test('la cookie de idioma cambia los textos de la ficha', function () {
         ->assertInertia(fn ($page) => $page
             ->where('locale', 'en')
             ->where('textos.chofer', 'Driver')
-            ->where('textos.lugares', 'Places'));
+            ->where('textos.lugares', 'Places I take you to'));
 
     $this->withUnencryptedCookie('locale', 'fr')
         ->get(route('drivers.show', ['slug' => 'nadie']))

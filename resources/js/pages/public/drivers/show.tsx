@@ -1,5 +1,5 @@
 import { Head, usePage } from '@inertiajs/react';
-import { Car, ChevronLeft, ChevronRight, Clock, MapPin, Moon, Phone, Sun, User, X } from 'lucide-react';
+import { Car, ChevronLeft, ChevronRight, ChevronUp, Clock, MapPin, Moon, Phone, Sun, User, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { usePublicAppearance } from '@/hooks/use-appearance';
@@ -237,7 +237,7 @@ function FotosDelLugar({ nombre, fotos }: { nombre: string; fotos: string[] }) {
                             data-foto={i}
                             onClick={() => abrir(i)}
                             aria-label={conNombre(textos.ver_foto, nombre)}
-                            className="h-44 min-w-full shrink-0 cursor-zoom-in snap-start"
+                            className="h-44 w-full shrink-0 grow-0 basis-full cursor-zoom-in snap-start overflow-hidden"
                         >
                             <img
                                 src={url}
@@ -299,9 +299,40 @@ function fotoSeñalada(target: EventTarget | null): number | null {
     return Number.isInteger(indice) ? indice : null;
 }
 
+function BotonSubir() {
+    const textos = useTextos();
+    const [visible, setVisible] = useState(false);
+
+    useEffect(() => {
+        function alScroll() {
+            setVisible(window.scrollY > 400);
+        }
+
+        alScroll();
+        window.addEventListener('scroll', alScroll, { passive: true });
+
+        return () => window.removeEventListener('scroll', alScroll);
+    }, []);
+
+    if (!visible) {
+        return null;
+    }
+
+    return (
+        <button
+            type="button"
+            onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+            aria-label={textos.subir}
+            className="fixed right-4 bottom-[calc(1rem+env(safe-area-inset-bottom))] z-40 flex size-11 cursor-pointer items-center justify-center rounded-full bg-neutral-900 text-white shadow-lg hover:bg-neutral-700 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200"
+        >
+            <ChevronUp className="size-5" aria-hidden="true" />
+        </button>
+    );
+}
+
 function FotoVacia({ nombre }: { nombre: string }) {
     return (
-        <div className="flex h-44 min-w-full shrink-0 snap-start items-end bg-neutral-200 p-4 text-sm text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
+        <div className="flex h-44 w-full shrink-0 grow-0 basis-full snap-start items-end bg-neutral-200 p-4 text-sm text-neutral-600 dark:bg-neutral-800 dark:text-neutral-300">
             {nombre}
         </div>
     );
@@ -545,21 +576,170 @@ function MenuIdioma() {
     );
 }
 
+const fotosEncabezado = ['/images/ushuaia-header.jpg', '/images/stunning-ushuaia.jpg'];
+
 function PaginaChofer({ chofer }: { chofer: ChoferPublico }) {
     const { resolvedAppearance, updateAppearance } = usePublicAppearance();
     const textos = useTextos();
     const isDark = resolvedAppearance === 'dark';
+    const cintaEncabezado = useRef<HTMLDivElement>(null);
+    const arrastreEncabezado = useRef<{ x: number; left: number } | null>(null);
+    const movioEncabezado = useRef(false);
+    const esperaEncabezado = useRef<number | null>(null);
+    const [indiceEncabezado, setIndiceEncabezado] = useState(0);
+    const [arrastrandoEncabezado, setArrastrandoEncabezado] = useState(false);
+
+    function posicionEncabezado(): number {
+        const nodo = cintaEncabezado.current;
+
+        if (!nodo || nodo.clientWidth === 0) {
+            return 0;
+        }
+
+        return Math.round(nodo.scrollLeft / nodo.clientWidth);
+    }
+
+    function irEncabezado(hacia: number) {
+        const nodo = cintaEncabezado.current;
+
+        if (!nodo || nodo.clientWidth === 0) {
+            return;
+        }
+
+        const siguiente = (posicionEncabezado() + hacia + fotosEncabezado.length) % fotosEncabezado.length;
+        nodo.scrollTo({ left: siguiente * nodo.clientWidth, behavior: 'smooth' });
+    }
+
+    function irAEncabezado(indice: number) {
+        const nodo = cintaEncabezado.current;
+
+        if (!nodo || nodo.clientWidth === 0) {
+            return;
+        }
+
+        nodo.scrollTo({ left: indice * nodo.clientWidth, behavior: 'smooth' });
+    }
+
+    function programarEncabezado() {
+        if (esperaEncabezado.current !== null) {
+            window.clearInterval(esperaEncabezado.current);
+        }
+
+        esperaEncabezado.current = window.setInterval(() => {
+            if (!document.hidden) {
+                irEncabezado(1);
+            }
+        }, 5000);
+    }
+
+    useEffect(() => {
+        programarEncabezado();
+
+        return () => {
+            if (esperaEncabezado.current !== null) {
+                window.clearInterval(esperaEncabezado.current);
+            }
+        };
+    }, []);
+
+    function alPresionarEncabezado(event: React.PointerEvent<HTMLDivElement>) {
+        if (esperaEncabezado.current !== null) {
+            window.clearInterval(esperaEncabezado.current);
+            esperaEncabezado.current = null;
+        }
+
+        if (event.pointerType !== 'mouse' || event.button !== 0) {
+            return;
+        }
+
+        arrastreEncabezado.current = { x: event.clientX, left: event.currentTarget.scrollLeft };
+        movioEncabezado.current = false;
+    }
+
+    function alMoverEncabezado(event: React.PointerEvent<HTMLDivElement>) {
+        if (!arrastreEncabezado.current) {
+            return;
+        }
+
+        const delta = event.clientX - arrastreEncabezado.current.x;
+
+        if (!movioEncabezado.current) {
+            if (Math.abs(delta) < 10) {
+                return;
+            }
+
+            movioEncabezado.current = true;
+            setArrastrandoEncabezado(true);
+            event.currentTarget.setPointerCapture(event.pointerId);
+        }
+
+        event.currentTarget.scrollLeft = arrastreEncabezado.current.left - delta;
+    }
+
+    function alSoltarEncabezado() {
+        if (!arrastreEncabezado.current) {
+            programarEncabezado();
+
+            return;
+        }
+
+        const fueArrastre = movioEncabezado.current;
+        arrastreEncabezado.current = null;
+        setArrastrandoEncabezado(false);
+
+        if (!fueArrastre) {
+            programarEncabezado();
+
+            return;
+        }
+
+        const nodo = cintaEncabezado.current;
+
+        if (nodo && nodo.clientWidth > 0) {
+            const destino = Math.round(nodo.scrollLeft / nodo.clientWidth) * nodo.clientWidth;
+            nodo.scrollTo({ left: destino, behavior: 'smooth' });
+        }
+
+        window.setTimeout(() => {
+            movioEncabezado.current = false;
+        }, 0);
+        programarEncabezado();
+    }
+
+    function alCancelarEncabezado() {
+        arrastreEncabezado.current = null;
+        movioEncabezado.current = false;
+        setArrastrandoEncabezado(false);
+        programarEncabezado();
+    }
 
     return (
         <>
             <Head title={chofer.nombre} />
             <main className="min-h-screen bg-neutral-50 text-neutral-900 dark:bg-neutral-950 dark:text-neutral-100">
                 <header className="relative bg-neutral-950 text-white">
-                    <img
-                        src="/images/ushuaia-header.jpg"
-                        alt={textos.alt_encabezado}
-                        className="block h-[70vh] w-full object-cover object-center sm:h-[90vh]"
-                    />
+                    <div
+                        ref={cintaEncabezado}
+                        onScroll={() => setIndiceEncabezado(posicionEncabezado())}
+                        onPointerDown={alPresionarEncabezado}
+                        onPointerMove={alMoverEncabezado}
+                        onPointerUp={alSoltarEncabezado}
+                        onPointerCancel={alCancelarEncabezado}
+                        aria-label={textos.alt_encabezado}
+                        className={`flex h-[80vh] overflow-x-auto select-none sm:h-[95vh] [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${
+                            arrastrandoEncabezado ? 'cursor-grabbing snap-none' : 'snap-x snap-mandatory'
+                        }`}
+                    >
+                        {fotosEncabezado.map((src) => (
+                            <img
+                                key={src}
+                                src={src}
+                                alt=""
+                                draggable={false}
+                                className="h-full w-full shrink-0 grow-0 basis-full snap-start object-cover object-center"
+                            />
+                        ))}
+                    </div>
                     <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-black/50 to-transparent" />
                     <div className="absolute inset-x-0 top-0 z-10">
                         <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 px-4 py-4 sm:px-6 sm:py-6">
@@ -578,7 +758,7 @@ function PaginaChofer({ chofer }: { chofer: ChoferPublico }) {
                             </div>
                         </div>
                     </div>
-                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/40 to-transparent">
+                    <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/75 via-black/40 to-transparent">
                         <div className="mx-auto flex max-w-5xl flex-col gap-3 px-4 py-6 sm:gap-4 sm:px-6 sm:py-10">
                             <h1 translate="no" className="notranslate text-4xl font-semibold tracking-tight sm:text-6xl lg:text-7xl">
                                 UsTour
@@ -591,6 +771,49 @@ function PaginaChofer({ chofer }: { chofer: ChoferPublico }) {
                                 {textos.intro_3}
                             </p>
                         </div>
+                    </div>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            irEncabezado(-1);
+                            programarEncabezado();
+                        }}
+                        aria-label={textos.foto_anterior}
+                        className="absolute top-1/2 left-3 z-20 flex size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70"
+                    >
+                        <ChevronLeft className="size-5" aria-hidden="true" />
+                    </button>
+                    <button
+                        type="button"
+                        onClick={() => {
+                            irEncabezado(1);
+                            programarEncabezado();
+                        }}
+                        aria-label={textos.foto_siguiente}
+                        className="absolute top-1/2 right-3 z-20 flex size-10 -translate-y-1/2 cursor-pointer items-center justify-center rounded-full bg-black/50 text-white hover:bg-black/70"
+                    >
+                        <ChevronRight className="size-5" aria-hidden="true" />
+                    </button>
+                    <div className="absolute top-1/2 left-1/2 z-20 flex -translate-x-1/2 -translate-y-1/2 gap-2">
+                        {fotosEncabezado.map((src, indice) => (
+                            <button
+                                key={src}
+                                type="button"
+                                aria-label={`${indice + 1} / ${fotosEncabezado.length}`}
+                                aria-current={indice === indiceEncabezado ? 'true' : undefined}
+                                onClick={() => {
+                                    irAEncabezado(indice);
+                                    programarEncabezado();
+                                }}
+                                className="flex size-8 cursor-pointer items-center justify-center"
+                            >
+                                <span
+                                    className={`rounded-full ${
+                                        indice === indiceEncabezado ? 'size-3 bg-white' : 'size-2.5 bg-white/50'
+                                    }`}
+                                />
+                            </button>
+                        ))}
                     </div>
                 </header>
 
@@ -778,6 +1001,7 @@ function PaginaChofer({ chofer }: { chofer: ChoferPublico }) {
                     </p>
                 </section>
             </main>
+            <BotonSubir />
         </>
     );
 }

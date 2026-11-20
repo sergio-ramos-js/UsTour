@@ -13,7 +13,7 @@ export default function LugaresIndex({ lugares }: { lugares: LugarRow[] }) {
     return (
         <>
             <Head title="Lugares" />
-            <div className="flex h-full flex-1 flex-col gap-4 p-4">
+            <div className="flex h-ful w-6/12 l flex-1 flex-col gap-4 p-4">
                 <div className="flex items-center justify-between gap-4">
                     <div>
                         <h1 className="text-xl font-semibold">Lugares</h1>

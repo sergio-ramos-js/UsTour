@@ -84,7 +84,7 @@ export default function DriversIndex({ choferes, busqueda }: { choferes: PaginaC
                 </div>
 
 
-                <div className="flex w-fit flex-col gap-2">
+                <div className="flex max-w-9/12 flex-col gap-2">
                     <div className="flex justify-between">
                         <div className="grid max-w-sm gap-2">
                             <Label htmlFor="buscar">Buscar</Label>

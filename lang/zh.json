@@ -27,14 +27,15 @@
     "si": "是",
     "no": "否",
     "sin_vehiculo": "还没有车辆。",
-    "viajes": "行程",
+    "viajes": "我带你去的地方",
     "sin_lugares": "还没有地点。",
-    "lugares": "地点",
-    "creditos": "页眉、司机和时间的照片是自己的文件。行程的卫星图来自 Wikimedia Commons。车辆照片是示例。",
+    "lugares": "我带你去的地方",
+    "creditos": "如果您是司机，想在本页发布您的资料，请联系我：2901 447747 或 oigresrol20@gmail.com。",
     "fotos_de": ":nombre 的照片",
     "ver_foto": "放大查看 :nombre 的照片",
     "foto_de": ":nombre 的照片",
     "foto_anterior": "上一张",
     "foto_siguiente": "下一张",
-    "cerrar": "关闭"
+    "cerrar": "关闭",
+    "subir": "回到顶部"
 }

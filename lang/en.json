@@ -27,14 +27,15 @@
     "si": "Yes",
     "no": "No",
     "sin_vehiculo": "No vehicle added yet.",
-    "viajes": "Trips",
+    "viajes": "Places I take you to",
     "sin_lugares": "No places added yet.",
-    "lugares": "Places",
-    "creditos": "Header, driver, and hours photos are our own files. The trips satellite image is from Wikimedia Commons. The vehicle photo is a sample.",
+    "lugares": "Places I take you to",
+    "creditos": "If you are a driver and want your profile on this page, contact me at 2901 447747 or oigresrol20@gmail.com.",
     "fotos_de": "Photos of :nombre",
     "ver_foto": "View the photo of :nombre larger",
     "foto_de": "Photo of :nombre",
     "foto_anterior": "Previous photo",
     "foto_siguiente": "Next photo",
-    "cerrar": "Close"
+    "cerrar": "Close",
+    "subir": "Back to top"
 }

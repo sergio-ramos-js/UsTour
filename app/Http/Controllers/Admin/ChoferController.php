@@ -34,7 +34,7 @@ class ChoferController extends Controller
                 });
             })
             ->orderBy('nombre')
-            ->paginate(20, ['id', 'nombre', 'slug', 'telefono', 'correo', 'activo', 'vehiculo_id'])
+            ->paginate(10, ['id', 'nombre', 'slug', 'telefono', 'correo', 'activo', 'vehiculo_id'])
             ->withQueryString()
             ->through(fn (Chofer $chofer) => [
                 'id' => $chofer->id,

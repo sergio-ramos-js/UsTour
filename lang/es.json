@@ -27,14 +27,15 @@
     "si": "Sí",
     "no": "No",
     "sin_vehiculo": "Sin vehículo cargado.",
-    "viajes": "Viajes",
+    "viajes": "Lugares a los que te llevo",
     "sin_lugares": "Sin lugares cargados.",
-    "lugares": "Lugares",
-    "creditos": "Fotos del encabezado, de Chofer y de Horarios: archivos propios. La satelital de Viajes: Wikimedia Commons. La foto del vehículo es de muestra.",
+    "lugares": "Lugares a los que te llevo",
+    "creditos": "Si sos chofer y querés publicar tu perfil en esta página, contactame al 2901 447747 o a oigresrol20@gmail.com.",
     "fotos_de": "Fotos de :nombre",
     "ver_foto": "Ver foto de :nombre en grande",
     "foto_de": "Foto de :nombre",
     "foto_anterior": "Foto anterior",
     "foto_siguiente": "Foto siguiente",
-    "cerrar": "Cerrar"
+    "cerrar": "Cerrar",
+    "subir": "Subir al inicio"
 }
